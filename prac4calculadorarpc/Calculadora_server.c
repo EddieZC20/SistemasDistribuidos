@@ -9,47 +9,35 @@
 float *
 sum_1_svc(inputs *argp, struct svc_req *rqstp)
 {
-	static float  result;
-
-	/*
-	 * insert server code here
-	 */
-
-	return &result;
+    static float result;
+    result = argp->i + argp->j;
+    return &result;
 }
 
 float *
 res_1_svc(inputs *argp, struct svc_req *rqstp)
 {
-	static float  result;
-
-	/*
-	 * insert server code here
-	 */
-
-	return &result;
-}
-
-float *
-div_1_svc(inputs *argp, struct svc_req *rqstp)
-{
-	static float  result;
-
-	/*
-	 * insert server code here
-	 */
-
-	return &result;
+    static float result;
+    result = argp->i - argp->j;
+    return &result;
 }
 
 float *
 mul_1_svc(inputs *argp, struct svc_req *rqstp)
 {
-	static float  result;
+    static float result;
+    result = argp->i * argp->j;
+    return &result;
+}
 
-	/*
-	 * insert server code here
-	 */
-
-	return &result;
+float *
+div_1_svc(inputs *argp, struct svc_req *rqstp)
+{
+    static float result;
+    if (argp->j == 0) {
+        result = 0; // evitar división por cero
+    } else {
+        result = argp->i / argp->j;
+    }
+    return &result;
 }
