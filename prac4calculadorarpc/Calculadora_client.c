@@ -7,6 +7,8 @@
 #include "Calculadora.h"
 
 
+char *host;
+
 void
 calcu_prog_1(char *host)
 {
@@ -49,17 +51,59 @@ calcu_prog_1(char *host)
 #endif	 /* DEBUG */
 }
 
+CLIENT *Conectar_servidor() {
+    CLIENT *clnt;
+    clnt = clnt_create(host, CALCU_PROG, CALCU_VERS, "udp");
+    if (clnt == NULL) {
+        clnt_pcreateerror(host);
+        exit(1);
+    }
+    return clnt;
+}
 
-int
-main (int argc, char *argv[])
-{
-	char *host;
+int main(int argc, char *argv[]) {
+    if (argc != 2) {
+        printf("Uso: %s <host>\n", argv[0]);
+        exit(1);
+    }
 
-	if (argc < 2) {
-		printf ("usage: %s server_host\n", argv[0]);
-		exit (1);
-	}
-	host = argv[1];
-	calcu_prog_1 (host);
-exit (0);
+    host = argv[1];
+    CLIENT *clnt = Conectar_servidor();
+    inputs datos;
+    float *result;
+
+    printf("Introduce el primer número: ");
+    scanf("%f", &datos.i);
+    printf("Introduce el operador (+, -, *, /): ");
+    scanf(" %c", &datos.operator);
+    printf("Introduce el segundo número: ");
+    scanf("%f", &datos.j);
+
+    switch (datos.operator) {
+        case '+':
+            result = sum_1(&datos, clnt);
+            break;
+        case '-':
+            result = res_1(&datos, clnt);
+            break;
+        case '*':
+            result = mul_1(&datos, clnt);
+            break;
+        case '/':
+            result = div_1(&datos, clnt);
+            break;
+        default:
+            printf("Operador no válido.\n");
+            clnt_destroy(clnt);
+            exit(1);
+    }
+
+    if (result == (float *)NULL) {
+        clnt_perror(clnt, "Error en llamada RPC");
+        exit(1);
+    }
+
+    printf("Resultado: %.2f %c %.2f = %.2f\n", datos.i, datos.operator, datos.j, *result);
+    clnt_destroy(clnt);
+    return 0;
 }
